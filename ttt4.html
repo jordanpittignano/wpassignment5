@@ -1,0 +1,233 @@
+<html>
+    
+<head>
+
+<style type="text/css">
+
+.title {
+    text-align: center;
+    font-family: "Arial", sans-serif;
+    padding-top: 20px;
+    font-size: 35px;
+}
+
+.turn {
+    margin: 0 auto;
+    display: flex;
+    width: 150px;
+    height: 30px;
+    border: 2.5px solid #000000;
+    font-family: "Arial", sans-serif;
+    text-align: center;
+    justify-content: center;
+    font-size: 25px;
+}
+
+.win {
+    margin: 10px auto;
+    display: flex;
+    width: 300px;
+    height: 23px;
+    border: 2px solid #000000;
+    font-family: "Arial", sans-serif;
+    text-align: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.board {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: 35%;
+    margin-right: 35%;
+}
+
+.square {
+    width: 100px;
+    height: 100px;
+    border: 1.5px solid #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 5px;
+    font-size: 80px;
+    font-family: "Arial", sans-serif;
+    font-weight: 200;
+}
+
+.square:hover {
+    background-color: #dca8ed;
+}
+</style>
+
+</head>
+
+<body>
+    <script language="javascript">
+        // set variables for current turn, gameOver and gameStarted
+        let currTurn;
+        let gameOver = false;
+        let gameStarted = false;
+
+        // check for winner function
+        function checkForWinner(arrWinConditions) {
+            // check if x or o won
+            for (let i = 0; i < 8; i++) {
+                if (arrWinConditions[i] == "XXX") {
+                    return "X";
+                } else if (arrWinConditions[i] == "OOO") {
+                    return "O"
+                }
+            }
+
+            // return "none" if no winner
+            for (let j = 0; j < 8; j++) {
+                if (arrWinConditions[j].includes("-")) {
+                    return "none";
+                }
+            }
+
+            // if gets to here that means stalemate
+            return "stalemate";
+        }
+
+        // handle if a square is clicked
+        function handleSquareClick(e) {
+            // make sure the game has started and the game isn't over
+            if (!gameOver && gameStarted) {
+                let square = e.target;
+                let squareNum = square.id;
+
+                // variable for if the square is occupied
+                let occupied = false;
+
+                // if the square is not clicked already
+                if (square.innerHTML === "") {
+                    // alert
+                    alert("Square number " + squareNum.substring(2) + " clicked");
+
+                    // X or O based on current turn
+                    square.innerHTML = currTurn;
+
+                    // create moves
+                    let moves = [];
+
+                    for (let i = 0; i < 9; i++) {
+                        moves.push("-");
+                    }
+
+                    // populate moves
+                    moves.forEach (function(item, i) {
+                        let currSquare = document.getElementById("sq"+i).innerHTML;
+                        if (currSquare === "X" || currSquare === "O") {
+                            moves[i] = currSquare;
+                        }
+                    })
+
+                    // win conditions array
+                    let winConditions = [
+                        // first row across
+                        moves[0] + moves[1] + moves[2],
+                        // second row across
+                        moves[3] + moves[4] + moves[5],
+                        // third row across
+                        moves[6] + moves[7] + moves[8],
+                        // first row down
+                        moves[0] + moves[3] + moves[6],
+                        // second row down
+                        moves[1] + moves[4] + moves[7],
+                        // third row down
+                        moves[2] + moves[5] + moves[8],
+                        // diagonal left down to right
+                        moves[0] + moves[4] + moves[8],
+                        // diagonal right down to left
+                        moves[2] + moves[4] + moves[6]
+                    ];
+
+                    // call back check winner function
+                    let winner = checkForWinner(winConditions);
+
+                    if (winner == "X" || winner == "O") {
+                        document.getElementById('winner').innerText = "Winner: " + winner;
+                        gameOver = true;
+                    } else if (winner == "stalemate") {
+                        document.getElementById('winner').innerText = "Winner: Stalemate";
+                        gameOver = true;
+                    } else {
+                        if (!occupied) {
+                            // switch turn 
+                        if (currTurn === "X") {
+                            currTurn = "O"
+                        } else if (currTurn === "O") {
+                            currTurn = "X";
+                        }
+                        
+                        // change turn
+                        document.getElementById('turn').innerText = currTurn + "'s Turn";
+                        }
+                        
+                    }
+                } else {
+                    // if player tries to put an X or O in an occupied square
+                    alert("Square number " + squareNum.substring(2) + " is already occupied!");
+                    occupied = true;
+                }
+
+            // if they try to play without pressing start game
+            } else if (!gameStarted) {
+                alert("Please press start game");
+
+            // if they try to continue to play when the game is over
+            } else {
+                alert("The game is over. Please press the start game button to play again");    
+            }
+        }
+
+        // start game function
+        function startGame() {
+            gameOver = false;
+            gameStarted = true;
+
+            // getting all the squares and clearing them
+            for (let i = 0; i < NUM_SQUARES; i++) {
+                document.getElementById('sq' + i).innerHTML = "";
+            }
+
+            // randomly select turn
+            let randomNum = Math.random();
+            if (randomNum >= 0.5) {
+                currTurn = "X";
+            } else {
+                currTurn = "O";
+            }
+            
+            // resetting turn and winner
+            document.getElementById('turn').innerHTML = currTurn + "'s Turn";
+            document.getElementById('winner').innerHTML = "Winner: ";
+        }
+    </script>
+
+    <h1 class="title">Welcome to Tic Tac Toe!</h1>
+    <div class="turn" id="turn"></div>
+    <div class="board">
+
+    <script language="javascript">
+        // code for setting up the board
+        const NUM_SQUARES = 9;
+        for (i=0; i<NUM_SQUARES; i++) {
+            id = "sq"+i;
+            document.write( "<div class='square' id='" + id + "'></div>" );
+            document.getElementById("sq" + i).onclick = handleSquareClick;
+        }
+    </script>
+
+    <div class="win" id="winner"></div>
+    <button onclick="startGame()" style="display: block; margin: 20px auto; padding: 10px 20px; font-size: 20px;">Start Game</button>
+
+</body>
+
+</html>
